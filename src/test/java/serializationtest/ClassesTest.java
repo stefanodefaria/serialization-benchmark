@@ -36,11 +36,11 @@ public class ClassesTest {
     void benchmark() throws RunnerException {
         Options options = new OptionsBuilder()
                 .include(this.getClass().getName() + ".*")
-                .mode(Mode.AverageTime)
+                .mode(Mode.Throughput)
                 .warmupTime(TimeValue.seconds(1))
                 .warmupIterations(1)
                 .threads(1)
-                .measurementIterations(3)
+                .measurementIterations(6)
                 .forks(1)
                 .shouldFailOnError(true)
                 .build();
@@ -59,36 +59,36 @@ public class ClassesTest {
         System.out.println("msgpack: " + msgpack + " bytes");
         System.out.println("smile: " + smile + " bytes");
         System.out.println("jackson: " + jackson + " bytes");
-        System.out.println("kyio: " + kryo + " bytes");
+        System.out.println("kryo: " + kryo + " bytes");
         System.out.println("java: " + java + " bytes");
     }
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void testJackson() throws Exception {
         serializeJson(MAPPER, null);
     }
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void testSmile() throws Exception {
         serializeJson(SMILE_MAPPER, null);
     }
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void testMsgPack() throws Exception {
         serializeJson(MSGPACK_MAPPER, null);
     }
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void testJava() throws Exception {
         serializeJava(null);
     }
 
     @Benchmark
-    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void testKryo() {
         serializationKryo(null);
     }

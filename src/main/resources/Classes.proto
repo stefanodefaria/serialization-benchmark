@@ -1,0 +1,14 @@
+syntax = "proto3";
+package serializationtest;
+option java_package = "serializationtest";
+option java_outer_classname = "Classes";
+
+message FarmAddress {
+    int32 kilometer = 1;
+    string road = 2;
+}
+
+message HouseAddress {
+    int32 houseNumber = 1;
+    string street = 2;
+}

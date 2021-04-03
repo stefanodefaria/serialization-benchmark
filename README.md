@@ -13,13 +13,13 @@ Run the unit tests to get the results.
 The benchmarked operation runs the serialization and deserialization of two different objects that share a same parent type.
 
 ### Processing time
-Serialization tool | Average time per operation
+Serialization tool | Average operation throughput (higher is better)
 --- | ---
-jackson | 1.458 ±  0.120 us/op
-smile | 1.461 ± 0.072 us/op
-kryo | 1.491 ± 0.113 us/op
-msgPack | 3.615 ± 0.021 us/op
-java | 10.931 ± 1.340 us/op
+kryo | 695,236 ± 30,189  ops/ms
+jackson | 682,157 ± 37,413  ops/ms
+smile |655,561 ±  8,850  ops/ms
+msgPack | 508,310 ± 63,484  ops/ms
+java | 89,435 ±  1,844  ops/ms
 
 ### Serialized output size:
 Serialization tool | Output size
