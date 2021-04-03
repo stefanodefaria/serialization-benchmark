@@ -1,4 +1,4 @@
-Simple benchmark project to test serialization time and size using some simple template classes (check code for details).
+Simple benchmark project to test serialization time and output size using some simple template classes (check code for details).
 The tools used in this test must not require custom serialization logic, and must support polymorphism out of the box. 
 
 ## Tools tested:
@@ -6,12 +6,11 @@ The tools used in this test must not require custom serialization logic, and mus
 - Jackson JSON with msgpack (msgpack)
 - Jackson Smile (smile)
 - Kryo (kryo)
-- Java default serialization (java)
+- Java native serialization (java)
 
 ## Initial Results:
 Run the unit tests to get the results.
-The operation benchmarked is the serialization and serialization of
-two different objects that share a same parent type.
+The benchmarked operation runs the serialization and deserialization of two different objects that share a same parent type.
 
 ### Processing time
 Serialization tool | Average time per operation
