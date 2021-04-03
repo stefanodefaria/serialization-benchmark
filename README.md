@@ -1,5 +1,9 @@
-Simple benchmark project to test serialization time and output size using some simple template classes (check code for details).
-The tools used in this test must not require custom serialization logic, and must support polymorphism out of the box. 
+# Serialization benchmark test
+
+Simple benchmark project to test serialization time and output size using
+some simple template classes (check code for details).
+The tools used in this test must not require implementation of serialization
+logic and must support polymorphism out of the box.
 
 ## Tools tested:
 - Jackson JSON vanilla (jackson)
@@ -15,14 +19,14 @@ The benchmarked operation runs the serialization and deserialization of two diff
 ### Processing time
 Serialization tool | Average operation throughput (higher is better)
 --- | ---
-kryo | 695,236 ± 30,189  ops/ms
-jackson | 682,157 ± 37,413  ops/ms
-smile |655,561 ±  8,850  ops/ms
-msgPack | 508,310 ± 63,484  ops/ms
-java | 89,435 ±  1,844  ops/ms
+jackson | 704 ± 7  ops/ms
+kryo | 690 ± 2  ops/ms
+smile |669 ±  9  ops/ms
+msgPack | 535 ± 8  ops/ms
+java | 92 ±  1  ops/ms
 
 ### Serialized output size:
-Serialization tool | Output size
+Serialization tool | Output size (lower is better)
 --- | ---
 msgpack | 81 bytes
 smile | 93 bytes
