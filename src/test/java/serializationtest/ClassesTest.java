@@ -5,14 +5,20 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
 
 import java.io.*;
-import java.time.Duration;
-import java.time.Instant;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static serializationtest.Classes.*;
@@ -23,30 +29,30 @@ public class ClassesTest {
     private static final ObjectMapper MSGPACK_MAPPER = new ObjectMapper(new MessagePackFactory());
     private static final SmileMapper SMILE_MAPPER = new SmileMapper();
     private static final Kryo KRYO = new Kryo();
-    private static final int ITERATIONS = 1000 * 1000;
 
-    @BeforeAll
-    static void warmup() throws Exception {
+    @Test
+    void benchmark() throws RunnerException {
+        Options options = new OptionsBuilder()
+                .include(this.getClass().getName() + ".*")
+                .mode(Mode.AverageTime)
+                .warmupTime(TimeValue.seconds(1))
+                .warmupIterations(1)
+                .threads(1)
+                .measurementIterations(3)
+                .forks(1)
+                .shouldFailOnError(true)
+                .build();
 
-        Instant warmupStart = Instant.now();
-        for (int i = 0; i < 1000; i++) {
-            serializeJson(MAPPER, i);
-            serializeJson(MSGPACK_MAPPER, i);
-            serializeJson(SMILE_MAPPER, i);
-            serializationKryo(i);
-            serializeJava(i);
-        }
-        System.out.println("warmup:" + Duration.between(warmupStart, Instant.now()).toMillis() + "ms");
+        new Runner(options).run();
     }
 
     @Test
-    @Order(1)
     void testLengths() throws Exception {
-        int msgpack = serializeJson(MSGPACK_MAPPER, 0);
-        int smile = serializeJson(SMILE_MAPPER, 1);
-        int jackson = serializeJson(MAPPER, 2);
-        int java = serializeJava(3);
-        int kryo = serializationKryo(4);
+        int msgpack = serializeJson(MSGPACK_MAPPER);
+        int smile = serializeJson(SMILE_MAPPER);
+        int jackson = serializeJson(MAPPER);
+        int java = serializeJava();
+        int kryo = serializationKryo();
 
         System.out.println("msgpack: " + msgpack + " bytes");
         System.out.println("smile: " + smile + " bytes");
@@ -55,62 +61,38 @@ public class ClassesTest {
         System.out.println("java: " + java + " bytes");
     }
 
-    @Test
-    @Order(2)
-    public void testSmile() throws Exception {
-
-        Instant start = Instant.now();
-        for (int i = 0; i < ITERATIONS; i++) {
-            serializeJson(SMILE_MAPPER, i);
-        }
-        System.out.println("smile: " + Duration.between(start, Instant.now()).toMillis() + "ms");
-    }
-
-    @Test
-    @Order(3)
-    public void testMsgPack() throws Exception {
-
-        Instant start = Instant.now();
-        for (int i = 0; i < ITERATIONS; i++) {
-            serializeJson(MSGPACK_MAPPER, i);
-        }
-        System.out.println("msgpack: " + Duration.between(start, Instant.now()).toMillis() + "ms");
-    }
-
-    @Test
-    @Order(4)
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testJackson() throws Exception {
-
-        Instant start2 = Instant.now();
-        for (int i = 0; i < ITERATIONS; i++) {
-            serializeJson(MAPPER, i);
-        }
-        System.out.println("jackson: " + Duration.between(start2, Instant.now()).toMillis() + "ms");
+        serializeJson(MAPPER);
     }
 
-    @Test
-    @Order(5)
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    public void testSmile() throws Exception {
+        serializeJson(SMILE_MAPPER);
+    }
+
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    public void testMsgPack() throws Exception {
+        serializeJson(MSGPACK_MAPPER);
+    }
+
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testJava() throws Exception {
-
-        Instant start3 = Instant.now();
-        for (int i = 0; i < ITERATIONS; i++) {
-            serializeJava(i);
-        }
-        System.out.println("java: " + Duration.between(start3, Instant.now()).toMillis() + "ms");
+        serializeJava();
     }
 
-    @Test
-    @Order(5)
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testKryo() throws Exception {
-
-        Instant start3 = Instant.now();
-        for (int i = 0; i < ITERATIONS; i++) {
-            serializationKryo(i);
-        }
-        System.out.println("kryio: " + Duration.between(start3, Instant.now()).toMillis() + "ms");
+        serializationKryo();
     }
 
-    private static int serializeJson(ObjectMapper objectMapper, int i) throws IOException {
+    private static int serializeJson(ObjectMapper objectMapper) throws IOException {
+        int i = new Random().nextInt();
         FarmAddress farmAddress = new FarmAddress("estrada" + i, Integer.MAX_VALUE - i);
         byte[] serializedFarmAddress = objectMapper.writeValueAsBytes(farmAddress);
         Address deserialized = objectMapper.readerFor(Address.class).readValue(serializedFarmAddress);
@@ -124,8 +106,8 @@ public class ClassesTest {
         return serializedFarmAddress.length + serializedHouseAddress.length;
     }
 
-    private static int serializeJava(int i) throws Exception {
-
+    private static int serializeJava() throws Exception {
+        int i = new Random().nextInt();
         FarmAddress farmAddress = new FarmAddress("estrada" + i, Integer.MAX_VALUE - i);
         byte[] serialized = jSerialize(farmAddress);
         Address deserialized = jDeserialize(serialized);
@@ -139,7 +121,8 @@ public class ClassesTest {
         return serialized.length + serializedHouseAddress.length;
     }
 
-    private static int serializationKryo(int i) throws Exception {
+    private static int serializationKryo() {
+        int i = new Random().nextInt();
         FarmAddress farmAddress = new FarmAddress("estrada" + i, Integer.MAX_VALUE - i);
         byte[] serialized = kSerialize(farmAddress);
         Address deserialized = kDeserialize(serialized);
@@ -160,7 +143,7 @@ public class ClassesTest {
         return output.toBytes();
     }
 
-    private static Address kDeserialize(byte[] serialized) throws Exception {
+    private static Address kDeserialize(byte[] serialized) {
         Input input = new Input(serialized);
         return (Address) KRYO.readClassAndObject(input);
     }

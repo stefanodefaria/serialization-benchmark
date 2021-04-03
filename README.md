@@ -9,19 +9,24 @@ The tools used in this test must not require custom serialization logic, and mus
 	- Java default serialization (java)
 
 ## Initial Results:
-Run the unit tests to get the results. They currently run one million iterations of serialization and
-serialization of two different objects that share a same parent type.
+Run the unit tests to get the results.
+The operation benchmarked is the serialization and serialization of
+two different objects that share a same parent type.
 
 ### Processing time
-    - kryio: 1375ms
-    - jackson: 1593ms
-    - smile: 1734ms
-    - msgpack: 3749ms
-    - java: 10531ms
+Serialization tool | Average time per operation
+--- | ---
+jackson | 1.495 ±  0.164 us/op
+kyro | 1.554 ± 1.013 us/op
+smile | 1.550 ± 0.327 us/op
+msgPack | 3.794 ± 2.169 us/op
+java | 11.436 ± 12.455 us/op
 
 ### Serialized output size:
-    - msgpack: 81 bytes
-    - smile: 93 bytes
-    - kyio: 105 bytes
-    - jackson: 113 bytes
-    - java: 323 bytes
+Serialization tool | Output size
+--- | ---
+msgpack | 97 bytes
+smile | 111 bytes
+kyio | 123 bytes
+jackson | 129 bytes
+java | 341 bytes
