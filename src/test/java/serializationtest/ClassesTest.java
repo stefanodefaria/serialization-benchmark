@@ -23,12 +23,14 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static serializationtest.Classes.*;
 
+@SuppressWarnings({"unused", "JUnit3StyleTestMethodInJUnit4Class"})
 public class ClassesTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final ObjectMapper MSGPACK_MAPPER = new ObjectMapper(new MessagePackFactory());
     private static final SmileMapper SMILE_MAPPER = new SmileMapper();
     private static final Kryo KRYO = new Kryo();
+    private static final Random RANDOM = new Random();
 
     @Test
     void benchmark() throws RunnerException {
@@ -48,11 +50,11 @@ public class ClassesTest {
 
     @Test
     void testLengths() throws Exception {
-        int msgpack = serializeJson(MSGPACK_MAPPER);
-        int smile = serializeJson(SMILE_MAPPER);
-        int jackson = serializeJson(MAPPER);
-        int java = serializeJava();
-        int kryo = serializationKryo();
+        int msgpack = serializeJson(MSGPACK_MAPPER, 1);
+        int smile = serializeJson(SMILE_MAPPER, 1);
+        int jackson = serializeJson(MAPPER, 1);
+        int java = serializeJava(1);
+        int kryo = serializationKryo(1);
 
         System.out.println("msgpack: " + msgpack + " bytes");
         System.out.println("smile: " + smile + " bytes");
@@ -64,35 +66,35 @@ public class ClassesTest {
     @Benchmark
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testJackson() throws Exception {
-        serializeJson(MAPPER);
+        serializeJson(MAPPER, null);
     }
 
     @Benchmark
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testSmile() throws Exception {
-        serializeJson(SMILE_MAPPER);
+        serializeJson(SMILE_MAPPER, null);
     }
 
     @Benchmark
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testMsgPack() throws Exception {
-        serializeJson(MSGPACK_MAPPER);
+        serializeJson(MSGPACK_MAPPER, null);
     }
 
     @Benchmark
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void testJava() throws Exception {
-        serializeJava();
+        serializeJava(null);
     }
 
     @Benchmark
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void testKryo() throws Exception {
-        serializationKryo();
+    public void testKryo() {
+        serializationKryo(null);
     }
 
-    private static int serializeJson(ObjectMapper objectMapper) throws IOException {
-        int i = new Random().nextInt();
+    private static int serializeJson(ObjectMapper objectMapper, Integer value) throws IOException {
+        int i = value != null ? value : RANDOM.nextInt();
         FarmAddress farmAddress = new FarmAddress("estrada" + i, Integer.MAX_VALUE - i);
         byte[] serializedFarmAddress = objectMapper.writeValueAsBytes(farmAddress);
         Address deserialized = objectMapper.readerFor(Address.class).readValue(serializedFarmAddress);
@@ -106,8 +108,8 @@ public class ClassesTest {
         return serializedFarmAddress.length + serializedHouseAddress.length;
     }
 
-    private static int serializeJava() throws Exception {
-        int i = new Random().nextInt();
+    private static int serializeJava(Integer value) throws Exception {
+        int i = value != null ? value : RANDOM.nextInt();
         FarmAddress farmAddress = new FarmAddress("estrada" + i, Integer.MAX_VALUE - i);
         byte[] serialized = jSerialize(farmAddress);
         Address deserialized = jDeserialize(serialized);
@@ -121,8 +123,8 @@ public class ClassesTest {
         return serialized.length + serializedHouseAddress.length;
     }
 
-    private static int serializationKryo() {
-        int i = new Random().nextInt();
+    private static int serializationKryo(Integer value) {
+        int i = value != null ? value : RANDOM.nextInt();
         FarmAddress farmAddress = new FarmAddress("estrada" + i, Integer.MAX_VALUE - i);
         byte[] serialized = kSerialize(farmAddress);
         Address deserialized = kDeserialize(serialized);
