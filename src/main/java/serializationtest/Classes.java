@@ -24,12 +24,24 @@ public class Classes {
     }
 
     static class FarmAddress extends Address {
-        private final String road;
-        private final int kilometer;
+        private String road;
+        private int kilometer;
+
+        public FarmAddress() {
+
+        }
 
         @JsonCreator
         FarmAddress(@JsonProperty("road") String road, @JsonProperty("kilometer") int kilometer) {
             this.road = road;
+            this.kilometer = kilometer;
+        }
+
+        public void setRoad(String road) {
+            this.road = road;
+        }
+
+        public void setKilometer(int kilometer) {
             this.kilometer = kilometer;
         }
 
@@ -49,12 +61,23 @@ public class Classes {
 
 
     static class HouseAddress extends Address {
-        private final String street;
-        private final int houseNumber;
+        private String street;
+        private int houseNumber;
+
+        HouseAddress() {
+        }
 
         @JsonCreator
         public HouseAddress(@JsonProperty("street") String street, @JsonProperty("houseNumber") int houseNumber) {
             this.street = street;
+            this.houseNumber = houseNumber;
+        }
+
+        public void setStreet(String street) {
+            this.street = street;
+        }
+
+        public void setHouseNumber(int houseNumber) {
             this.houseNumber = houseNumber;
         }
 

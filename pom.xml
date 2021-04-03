@@ -37,6 +37,11 @@
             <version>${jackson-2-version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>4.0.1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.msgpack</groupId>
